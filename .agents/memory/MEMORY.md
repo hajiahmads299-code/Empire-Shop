@@ -1,0 +1,1 @@
+- [Backend delivery guardrails](backend-delivery-guardrails.md) — preserve explicit database failures and keep financial/state transitions atomic.
