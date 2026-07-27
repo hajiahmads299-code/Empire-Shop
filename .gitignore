@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Replit-specific (do not commit)
+.agents/
+replit.md
+*.REPORT.md
+FINAL_FIX_REPORT.md
+STAGE*.md
