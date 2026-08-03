@@ -77,11 +77,13 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24, // 24h
     dangerouslyAllowSVG: false,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Serve images inline by default — attachment causes browsers to download
+    // images instead of rendering them in-page which breaks UX and SEO.
+    contentDispositionType: 'inline',
   },
   // Stage 5 — static asset caching + security headers + compression.
   async headers() {
+    const isProd = process.env.NODE_ENV === 'production';
     return [
       {
         source: '/_next/static/:path*',
@@ -102,6 +104,8 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
+          // Add HSTS in production so browsers remember HTTPS preference.
+          ...(isProd ? [{ key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' }] : []),
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
