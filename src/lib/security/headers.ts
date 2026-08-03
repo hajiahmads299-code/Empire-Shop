@@ -37,11 +37,11 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
   //   - dev           → 'self' 'unsafe-inline' 'unsafe-eval'  (HMR + overlay)
   const scriptSrc = isProd
     ? nonce
-      ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
-      : "script-src 'self'"
+      ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'report-sample'`
+      : "script-src 'self' 'report-sample'"
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
 
-  const csp = [
+  const cspDirectives = [
     "default-src 'self'",
     "base-uri 'self'",
     "frame-ancestors 'none'",
@@ -55,18 +55,34 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
     "worker-src 'self' blob:",
     "manifest-src 'self'",
     'upgrade-insecure-requests',
-  ].join('; ');
+  ];
 
-  return {
-    'Content-Security-Policy': csp,
-    'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy':
-      'camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(self)',
-    'Cross-Origin-Opener-Policy': 'same-origin',
-    'Cross-Origin-Resource-Policy': 'same-site',
-    'X-DNS-Prefetch-Control': 'on',
-  };
+  const csp = cspDirectives.join('; ');
+
+  const headers: Record<string, string> = {};
+
+  // Allow running CSP in Report-Only mode for rollout/testing. Set
+  // CSP_REPORT_ONLY=true in the environment to enable.
+  const reportOnly = (process.env.CSP_REPORT_ONLY ?? 'false') === 'true';
+  if (reportOnly) {
+    headers['Content-Security-Policy-Report-Only'] = csp;
+  } else {
+    headers['Content-Security-Policy'] = csp;
+  }
+
+  // HSTS is only applied in production responses. Some environments (local)
+  // serve over HTTP and must not receive HSTS.
+  if (isProd) {
+    headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload';
+  }
+
+  headers['X-Content-Type-Options'] = 'nosniff';
+  headers['X-Frame-Options'] = 'DENY';
+  headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
+  headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(self)';
+  headers['Cross-Origin-Opener-Policy'] = 'same-origin';
+  headers['Cross-Origin-Resource-Policy'] = 'same-site';
+  headers['X-DNS-Prefetch-Control'] = 'on';
+
+  return headers;
 }
