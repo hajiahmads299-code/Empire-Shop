@@ -1,17 +1,10 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 
 /** @type {import('eslint').Linter.Config[]} */
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     ignores: [
       '.next/**',
@@ -38,6 +31,15 @@ const eslintConfig = [
       'no-console': 'off',
       '@next/next/no-img-element': 'off',
       'react-hooks/exhaustive-deps': 'off',
+      // The legacy client surface intentionally synchronizes local state from
+      // effects; keep this new React Compiler diagnostic non-blocking during
+      // the framework upgrade.
+      'react-hooks/set-state-in-effect': 'off',
+      // Existing components define small render-local wrappers; preserve
+      // their behavior while adopting the Next.js 16 rule set.
+      'react-hooks/static-components': 'off',
+      // This legacy navigation is intentionally retained for this upgrade.
+      '@next/next/no-location-assign-relative-destination': 'off',
     },
   },
 ];
