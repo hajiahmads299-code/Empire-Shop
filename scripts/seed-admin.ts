@@ -8,8 +8,13 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  const hash = await bcrypt.hash('Admin@1234', 10);
-  const user = await prisma.user.upsert({
+  const seedPassword = process.env.ADMIN_SEED_PASSWORD;
+  if (!seedPassword || seedPassword.length < 12) {
+    throw new Error('ADMIN_SEED_PASSWORD must be provided and at least 12 characters long.');
+  }
+
+  const hash = await bcrypt.hash(seedPassword, 12);
+  await prisma.user.upsert({
     where: { email: 'admin@empire.shop' },
     update: { passwordHash: hash, role: 'admin', isActive: true },
     create: {
@@ -20,8 +25,11 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Admin user ready:', user.email, '— role:', user.role);
-  await prisma.$disconnect();
 }
 
-main().catch(console.error);
+main()
+  .catch((error: unknown) => {
+    console.error('Admin seed failed', error);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());

@@ -53,12 +53,15 @@ const METHOD_LABEL: Record<string, string> = {
 async function getSellerPaymentAccount(sellerId: string) {
   if (!isDatabaseConfigured()) return null;
   try {
-    const rows = await prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `SELECT "sellerBankAccountNumber", "sellerBankAccountName", "sellerBankName", "sellerAtomaPay"
-       FROM "User" WHERE id = $1 LIMIT 1`,
-      sellerId,
-    );
-    return rows[0] ?? null;
+    return await prisma.user.findUnique({
+      where: { id: sellerId },
+      select: {
+        sellerBankAccountNumber: true,
+        sellerBankAccountName: true,
+        sellerBankName: true,
+        sellerAtomaPay: true,
+      },
+    });
   } catch {
     return null;
   }
@@ -127,8 +130,8 @@ export default async function SellerWalletPage({ params }: Props) {
               <span className="font-semibold text-emerald-800 dark:text-emerald-300">حساب پرداخت ثبت‌شده: </span>
               <span className="text-emerald-700 dark:text-emerald-400">
                 {[
-                  paymentAccount.sellerBankName as string | null,
-                  paymentAccount.sellerBankAccountNumber as string | null,
+                  paymentAccount.sellerBankName,
+                  paymentAccount.sellerBankAccountNumber,
                   paymentAccount.sellerAtomaPay ? `ATOMA: ${paymentAccount.sellerAtomaPay}` : null,
                 ]
                   .filter(Boolean)

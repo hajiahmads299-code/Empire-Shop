@@ -18,10 +18,10 @@ function getSecret(): string {
     process.env.AUTH_SECRET ||
     process.env.NEXTAUTH_SECRET ||
     process.env.SESSION_SECRET;
-  if (!s || s.length < 16) {
+  if (!s || s.length < 32) {
     // Non-fatal in dev, but log so ops rotate in prod.
     if (process.env.NODE_ENV === 'production') {
-      throw new Error('AUTH_SECRET must be set (min 16 chars) in production.');
+      throw new Error('AUTH_SECRET must be set (min 32 chars) in production.');
     }
     return 'dev-insecure-secret-change-me-please-32b';
   }
