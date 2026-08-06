@@ -16,11 +16,13 @@ import type { BrandMeta } from '@/types';
  */
 
 function resolveSiteUrl(): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? '';
+  const configured = process.env.NEXT_PUBLIC_SITE_URL;
+  const runtimeDomain = process.env.REPLIT_DOMAINS?.split(',')[0]?.trim();
+  const raw = configured || (runtimeDomain ? `https://${runtimeDomain}` : '');
   const trimmed = raw.replace(/\/$/, '');
 
   if (process.env.NODE_ENV === 'production') {
-    if (!trimmed || trimmed.startsWith('http://localhost')) {
+    if (configured && (!trimmed || trimmed.startsWith('http://localhost'))) {
       throw new Error(
         '[empire] FATAL: NEXT_PUBLIC_SITE_URL must be set to your production domain ' +
           '(e.g. https://www.empire.shop) in production. ' +
@@ -29,7 +31,8 @@ function resolveSiteUrl(): string {
     }
   }
 
-  // Development/staging: fall back to localhost so the app still boots without config.
+  // Replit supplies REPLIT_DOMAINS in published apps. Local development falls
+  // back to localhost so the app still boots without optional site config.
   return trimmed || 'http://localhost:3000';
 }
 

@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { EmpireLogo } from '@/components/empire-logo';
+import { NewsletterForm } from './newsletter-form';
 
 const navLinks = [
   { label: 'صفحه اصلی',              href: '/' },
@@ -246,28 +247,7 @@ export function SiteFooter() {
                 <p className="text-xs font-bold text-foreground mb-0.5">دریافت تخفیف‌های ویژه</p>
                 <p className="text-[11px] text-muted-foreground">ایمیل خود را وارد کنید</p>
               </div>
-              <form
-                onSubmit={(e) => e.preventDefault()}
-                className="flex gap-1.5"
-                role="search"
-                aria-label="عضویت در خبرنامه"
-              >
-                <label htmlFor="footer-email" className="sr-only">آدرس ایمیل</label>
-                <input
-                  id="footer-email"
-                  type="email"
-                  placeholder="example@email.com"
-                  dir="ltr"
-                  autoComplete="email"
-                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 px-3 py-2 text-[11px] font-bold text-white hover:from-rose-600 hover:to-rose-700 transition-all shadow-sm whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                >
-                  ثبت
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
           </div>
         </div>

@@ -195,13 +195,13 @@ export default function ProductForm({ initialData, onSubmit }: ProductFormProps)
       await onSubmit({
         ...form,
         price: Number(form.price),
-        comparePrice: form.comparePrice ? Number(form.comparePrice) : null,
+        comparePrice: form.comparePrice ? Number(form.comparePrice) : '',
         stock: Number(form.stock) || 0,
         tags,
         attributes: attrsObj,
         images,
-        mainImage: mainImage || images[0] || null,
-        video: video || null,
+        mainImage: mainImage || images[0] || '',
+        video: video || '',
       });
       setSuccess('محصول با موفقیت ذخیره شد');
     } catch (err: unknown) {

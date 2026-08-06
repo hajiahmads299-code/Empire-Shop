@@ -15,6 +15,7 @@
  */
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { WalletTxType } from '@prisma/client';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { requireSellerApi } from '@/lib/auth/require-seller-api';
 import { logger } from '@/lib/logger';
@@ -41,7 +42,11 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, parseInt(sp.get('page') ?? '1', 10) || 1);
   const limit = Math.min(50, Math.max(5, parseInt(sp.get('limit') ?? '10', 10) || 10));
   // FIX: carry `type` through to all DB queries instead of discarding it.
-  const type = sp.get('type') || undefined;
+  const typeParam = sp.get('type');
+  const type =
+    typeParam && Object.values(WalletTxType).includes(typeParam as WalletTxType)
+      ? (typeParam as WalletTxType)
+      : undefined;
 
   const baseWhere = {
     sellerId: guard.user.id,

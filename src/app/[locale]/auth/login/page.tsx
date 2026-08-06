@@ -112,8 +112,9 @@ export default function LoginPage() {
             </div>
 
             {/* Google OAuth */}
-            <a
+            <Link
               href="/api/auth/google/start"
+              prefetch={false}
               className="mb-4 flex w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -124,7 +125,7 @@ export default function LoginPage() {
                 <path fill="none" d="M1.5 1.5h45v45h-45z"/>
               </svg>
               ورود با Google
-            </a>
+            </Link>
 
             {/* Divider */}
             <div className="relative my-4" aria-hidden="true">

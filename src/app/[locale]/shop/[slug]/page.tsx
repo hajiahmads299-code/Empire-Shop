@@ -31,7 +31,7 @@ export async function generateMetadata({
 
   const title = `${product.name} | Empire Shop`;
   const description = product.shortDescription ?? `خرید ${product.name} از Empire Shop`;
-  const ogImage = product.images?.[0]?.url ?? `${SITE_URL}/icons/icon-512.png`;
+  const ogImage = product.images?.[0]?.src ?? `${SITE_URL}/icons/icon-512.png`;
   const canonicalUrl = `${SITE_URL}/${locale}/shop/${slug}`;
 
   return {
