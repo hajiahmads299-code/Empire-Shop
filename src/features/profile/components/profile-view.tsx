@@ -5,7 +5,7 @@ import { LogoutButton } from './logout-button';
 import { MyOrders } from './my-orders';
 import { AccountNotifications } from './account-notifications';
 import {
-  User, ClipboardList, MapPin, Settings, Store, Briefcase, ShieldCheck,
+  User, ClipboardList, MapPin, Settings, Briefcase, ShieldCheck,
   Heart, ChevronLeft, Package, Mail, Phone as PhoneIcon, Calendar, Edit3,
 } from 'lucide-react';
 
@@ -80,9 +80,7 @@ export function ProfileView({ user, locale = 'fa' }: Props) {
   ];
 
   const roleLinks = [
-    ...(user.role === 'customer'
-      ? [{ href: '/seller/apply', label: 'فروشنده شوید', sub: 'شروع رایگان فروش', icon: Store, style: 'text-emerald-700 dark:text-emerald-400 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-emerald-200 dark:border-emerald-800/50' }]
-      : []),
+    ...(user.role === 'customer' ? [] : []),
     ...(user.role === 'seller'
       ? [{ href: '/seller', label: 'پنل فروشنده', sub: 'مدیریت محصولات و سفارش‌ها', icon: Briefcase, style: 'text-teal-700 dark:text-teal-400 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border-teal-200 dark:border-teal-800/50' }]
       : []),
@@ -91,9 +89,6 @@ export function ProfileView({ user, locale = 'fa' }: Props) {
       : []),
   ];
 
-  const applicationStatus = user.role === 'customer' && user.sellerStatus && user.sellerStatus !== 'none'
-    ? user.sellerStatus
-    : null;
 
   return (
     <div className="space-y-4">
@@ -226,23 +221,6 @@ export function ProfileView({ user, locale = 'fa' }: Props) {
         </div>
       )}
 
-      {applicationStatus && (
-        <Link
-          href="/seller/apply"
-          className="flex items-center justify-between rounded-2xl border border-amber-200 bg-amber-50/80 px-5 py-4 text-amber-800 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-300"
-        >
-          <div className="flex items-center gap-3">
-            <Store className="h-5 w-5" aria-hidden />
-            <div>
-              <p className="text-sm font-bold">وضعیت درخواست فروشندگی</p>
-              <p className="mt-0.5 text-[11px] opacity-80">
-                {applicationStatus === 'pending' ? 'در انتظار بررسی ادمین' : applicationStatus === 'rejected' ? 'رد شده؛ مشاهده دلیل و ارسال درخواست جدید' : 'تأیید شده'}
-              </p>
-            </div>
-          </div>
-          <ChevronLeft className="h-4 w-4 opacity-60" aria-hidden />
-        </Link>
-      )}
 
       <AccountNotifications />
 

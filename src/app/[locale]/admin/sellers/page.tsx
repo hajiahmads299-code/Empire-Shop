@@ -5,6 +5,7 @@ import { SearchForm } from '@/features/admin/components/search-form';
 import { Pagination } from '@/features/admin/components/pagination';
 import { EmptyState } from '@/features/admin/components/empty-state';
 import { SellerActions } from '@/features/admin/components/seller-actions';
+import { CreateSellerButton } from '@/features/admin/components/create-seller-button';
 import { listAdminSellers } from '@/features/admin/lib/queries';
 import type { AdminSellerRow, SellerStatus } from '@/features/admin/lib/mock-data';
 import { formatDate } from '@/features/admin/lib/format';
@@ -59,11 +60,14 @@ export default async function AdminSellersPage({ params, searchParams }: Props) 
 
   return (
     <div className="space-y-4">
-      <header>
-        <h2 className="font-display text-2xl font-bold text-navy-800">فروشندگان</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          تایید، رد و مدیریت درخواست فروشندگان مارکت‌پلیس
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="font-display text-2xl font-bold text-foreground">فروشندگان</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            مدیریت فروشندگان مارکت‌پلیس — فقط Admin می‌تواند فروشنده ایجاد کند
+          </p>
+        </div>
+        <CreateSellerButton />
       </header>
 
       <Card className="space-y-4 p-4">

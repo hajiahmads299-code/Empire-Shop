@@ -41,7 +41,6 @@ const accountLinks = [
   { label: 'حساب کاربری',             href: '/profile' },
   { label: 'سفارش‌های من',            href: '/orders' },
   { label: 'علاقه‌مندی‌ها',           href: '/wishlist' },
-  { label: 'فروشنده شوید',            href: '/seller/apply' },
 ];
 
 const sellerLinks = [

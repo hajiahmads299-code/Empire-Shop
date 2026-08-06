@@ -184,7 +184,7 @@ export function AdminShell({ locale, userName, children }: AdminShellProps) {
     { href: `${base}/categories`, label: 'دسته‌بندی‌ها', icon: FolderTree, group: 'main' },
     { href: `${base}/orders`, label: 'سفارش‌ها', icon: ShoppingBag, group: 'main' },
     { href: `${base}/sellers`, label: 'فروشندگان', icon: Store, group: 'management' },
-    { href: `${base}/seller-applications`, label: 'درخواست فروشندگی', icon: Store, group: 'management' },
+
     { href: `${base}/users`, label: 'کاربران', icon: Users, group: 'management' },
     { href: `${base}/shipping-methods`, label: 'روش‌های ارسال', icon: Truck, group: 'management' },
     { href: `${base}/payments`, label: 'پرداخت‌ها', icon: CreditCard, group: 'finance' },

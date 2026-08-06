@@ -86,7 +86,7 @@ const slides: Slide[] = [
     highlight: 'موفق شوید',
     subtitle: 'به جمع هزاران فروشنده موفق بپیوندید و محصولاتتان را با بهترین شرایط به سراسر افغانستان بفروشید',
     cta: 'شروع رایگان',
-    ctaHref: '/seller/apply',
+    ctaHref: '/seller',
     secondaryCta: 'اطلاعات بیشتر',
     secondaryHref: '/about',
     bg: 'from-slate-700 via-gray-800 to-[#0f172a]',
@@ -199,8 +199,13 @@ export function HeroSection() {
                 activeBg,
                 isTransitioning ? 'opacity-0' : 'opacity-100',
               )}
-              style={{ backgroundImage: activePattern }}
             >
+              {/* Pattern overlay — separate from gradient so both are visible */}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ backgroundImage: activePattern }}
+                aria-hidden
+              />
               {/* Decorative shapes */}
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="absolute -top-12 -end-12 h-56 w-56 rounded-full bg-white/5 blur-3xl" />

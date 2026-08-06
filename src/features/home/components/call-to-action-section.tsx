@@ -58,11 +58,11 @@ export function CallToActionSection() {
 
             <div className="flex items-center gap-3 flex-wrap pt-1">
               <Link
-                href="/seller/apply"
+                href="/contact"
                 className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-6 py-3 text-sm font-bold text-white hover:bg-rose-700 transition-all hover:-translate-y-0.5 shadow-lg shadow-rose-900/40 active:scale-95"
               >
                 <Store className="h-4 w-4" aria-hidden />
-                شروع فروش — رایگان
+                تماس با مدیریت
                 <ArrowLeft className="h-3.5 w-3.5 rtl:rotate-180" aria-hidden />
               </Link>
               <Link

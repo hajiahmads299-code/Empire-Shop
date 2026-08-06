@@ -21,7 +21,10 @@ function resolveSiteUrl(): string {
   const raw = configured || (runtimeDomain ? `https://${runtimeDomain}` : '');
   const trimmed = raw.replace(/\/$/, '');
 
-  if (process.env.NODE_ENV === 'production') {
+  // Skip strict validation during `next build` (NEXT_PHASE is 'phase-production-build').
+  // The URL is only needed at runtime (email links, OG tags) not during static analysis.
+  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+  if (process.env.NODE_ENV === 'production' && !isBuildPhase) {
     if (configured && (!trimmed || trimmed.startsWith('http://localhost'))) {
       throw new Error(
         '[empire] FATAL: NEXT_PUBLIC_SITE_URL must be set to your production domain ' +

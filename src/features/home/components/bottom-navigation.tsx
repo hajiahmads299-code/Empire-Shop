@@ -82,7 +82,6 @@ export function BottomNavigation() {
         { href: '/wishlist',          label: 'علاقه‌مندی‌ها',   icon: Heart },
         { href: '/profile/addresses', label: 'آدرس‌های من',     icon: MapPin },
         { href: '/settings',          label: 'تنظیمات',         icon: Settings },
-        ...(user.role === 'customer' ? [{ href: '/seller/apply', label: 'فروشنده شوید',  icon: Store }]        : []),
         ...(user.role === 'seller'   ? [{ href: '/seller',       label: 'پنل فروشنده',   icon: Briefcase }]    : []),
         ...(user.role === 'admin'    ? [{ href: '/admin',        label: 'پنل مدیریت',    icon: ShieldCheck }]  : []),
         { href: '/contact', label: 'تماس با ما', icon: Phone },
