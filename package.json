@@ -11,7 +11,7 @@
     "build:standalone": "npm run build",
     "start:standalone": "npm run standalone:prepare && node .next/standalone/server.js",
     "lint": "eslint src scripts prisma --max-warnings=0",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "prisma generate && tsc --noEmit",
     "test": "VITE_CONFIG_NATIVE_IGNORE_WARNING=true vitest run",
     "release-check": "node scripts/release-check.mjs",
     "audit:prod": "npm audit --omit=dev",
