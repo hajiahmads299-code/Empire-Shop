@@ -14,4 +14,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 export const metadata = {
   title: 'Empire Shop',
   description: 'Empire Shop foundation',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
 };

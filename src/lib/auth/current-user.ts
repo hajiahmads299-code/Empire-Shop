@@ -11,11 +11,10 @@ export interface CurrentUser {
   phone: string | null;
   role: CurrentUserRole;
   createdAt: string;
-  // Phase 12 — Auth verification + 2FA flags. Optional so existing callers
-  // that only care about the basic identity continue to work unchanged.
+  // Auth verification flags are optional so existing callers that only care
+  // about the basic identity continue to work unchanged.
   emailVerified?: boolean;
   phoneVerified?: boolean;
-  twoFactorEnabled?: boolean;
   isActive?: boolean;
   sellerStatus?: string;
 }
@@ -65,15 +64,12 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const rawRole = (user as unknown as { role?: string }).role;
   const role: CurrentUserRole = rawRole === 'admin' || rawRole === 'seller' ? rawRole : 'customer';
 
-  // Phase 12 — pull verification / 2FA flags defensively so the new auth
-  // guards (requireUserApi in ./guards) can read them without breaking
-  // against older generated Prisma clients.
+  // Pull verification flags defensively so auth guards can read them without
+  // breaking against older generated Prisma clients.
   const emailVerified =
     (user as unknown as { emailVerified?: boolean }).emailVerified ?? false;
   const phoneVerified =
     (user as unknown as { phoneVerified?: boolean }).phoneVerified ?? false;
-  const twoFactorEnabled =
-    (user as unknown as { twoFactorEnabled?: boolean }).twoFactorEnabled ?? false;
   const sellerStatus =
     (user as unknown as { sellerStatus?: string }).sellerStatus ?? 'none';
 
@@ -86,7 +82,6 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     createdAt: user.createdAt.toISOString(),
     emailVerified,
     phoneVerified,
-    twoFactorEnabled,
     isActive: isActive ?? true,
     sellerStatus,
   };

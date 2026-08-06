@@ -20,7 +20,6 @@ async function loadUser(userId: string): Promise<CurrentUser | null> {
       sellerStatus: 'none',
       emailVerified: false,
       phoneVerified: false,
-      twoFactorEnabled: false,
     };
   }
   try {
@@ -36,7 +35,6 @@ async function loadUser(userId: string): Promise<CurrentUser | null> {
         sellerStatus: true,
         emailVerified: true,
         phoneVerified: true,
-        twoFactorEnabled: true,
         createdAt: true,
       },
     });

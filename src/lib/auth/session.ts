@@ -99,7 +99,7 @@ export async function readSessionUserId(): Promise<string | null> {
 
 /**
  * Phase 12 — Lightweight session shape expected by some auth helpers
- * (notably `./guards` for the new email/phone/2FA endpoints). It just
+ * (notably `./guards` for the email/phone verification endpoints). It just
  * exposes the userId; the role / verification status are loaded
  * separately via `getCurrentUser`.
  */

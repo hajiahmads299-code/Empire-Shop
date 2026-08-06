@@ -72,7 +72,8 @@ mustExist('public/sw.js', 'service worker');
 mustExist('public/offline.html', 'offline fallback');
 mustExist('public/icons/icon-192.png', 'PWA icon 192');
 mustExist('public/icons/icon-512.png', 'PWA icon 512');
-mustExist('src/middleware.ts', 'middleware');
+if (fileExists('src/proxy.ts')) ok('proxy present');
+else mustExist('src/middleware.ts', 'middleware');
 mustExist('src/lib/security/headers.ts', 'security headers');
 
 head('Phase 4 — production infra');

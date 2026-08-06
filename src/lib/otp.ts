@@ -24,8 +24,7 @@ export async function createVerificationToken(
   // Invalidate any existing tokens of the same type for the user
   await prisma.verificationToken.deleteMany({ where: { userId, type } });
 
-  const isOtp =
-    type === 'phone_otp' || type === 'otp_login' || type === 'two_factor_setup';
+  const isOtp = type === 'phone_otp' || type === 'otp_login';
   const token = isOtp ? generateNumericOtp(6) : generateHexToken(32);
   const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 
