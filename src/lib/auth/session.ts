@@ -4,6 +4,7 @@
  */
 import { cookies } from 'next/headers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import type { NextResponse } from 'next/server';
 
 export const SESSION_COOKIE = 'empire_session';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
@@ -65,29 +66,44 @@ export function decodeSession(token: string): SessionPayload | null {
   }
 }
 
-export async function setSessionCookie(uid: string): Promise<void> {
-  const store = await cookies();
-  store.set(SESSION_COOKIE, encodeSession(uid), {
+export async function setSessionCookie(uid: string, res?: NextResponse): Promise<void> {
+  const value = encodeSession(uid);
+  const opts = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: MAX_AGE_SECONDS,
-  });
+  } as const;
+
+  if (res && typeof res.cookies?.set === 'function') {
+    // Set cookie on the provided response (preferred in route handlers where
+    // a NextResponse is being returned)
+    res.cookies.set(SESSION_COOKIE, value, opts);
+    return;
+  }
+
+  // Fallback: use the global cookies store (middleware/edge contexts)
+  const store = await cookies();
+  store.set(SESSION_COOKIE, value, opts as any);
 }
 
-export async function clearSessionCookie(): Promise<void> {
-  const store = await cookies();
-  // `maxAge: 0` clears the cookie. We keep `secure` consistent with the
-  // setter so the browser actually deletes it (browsers silently ignore
-  // an unset cookie whose attributes don't match the original).
-  store.set(SESSION_COOKIE, '', {
+export async function clearSessionCookie(res?: NextResponse): Promise<void> {
+  const opts = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
     maxAge: 0,
-  });
+  } as const;
+
+  if (res && typeof res.cookies?.set === 'function') {
+    res.cookies.set(SESSION_COOKIE, '', opts);
+    return;
+  }
+
+  const store = await cookies();
+  store.set(SESSION_COOKIE, '', opts as any);
 }
 
 export async function readSessionUserId(): Promise<string | null> {
