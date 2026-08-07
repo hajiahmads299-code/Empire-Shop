@@ -95,8 +95,8 @@ export function proxy(req: NextRequest) {
   const { locale, rest } = stripLocale(pathname);
   if (isProtected(rest) && !req.cookies.get(SESSION_COOKIE)?.value) {
     const target = req.nextUrl.clone();
-    target.pathname = `/${locale ?? routing.defaultLocale}/login`;
-    target.search = search;
+    target.pathname = `/${locale ?? routing.defaultLocale}/auth/login`;
+    target.search = search ? `${search}&redirect=${encodeURIComponent(rest)}` : `?redirect=${encodeURIComponent(rest)}`;
     return withSecurityHeaders(NextResponse.redirect(target), nonce);
   }
 

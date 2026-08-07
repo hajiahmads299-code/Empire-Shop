@@ -7,6 +7,7 @@
  */
 
 import { useState, type FormEvent, useId } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default function LoginPage() {
   const router = useRouter();
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const uid = useId();
 
   const [identifier, setIdentifier] = useState('');
@@ -43,6 +45,14 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  function getSafeRedirect(): string {
+    const requested = searchParams.get('redirect');
+    if (!requested || !requested.startsWith('/') || requested.startsWith('//')) {
+      return '/';
+    }
+    return requested;
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -62,7 +72,7 @@ export default function LoginPage() {
         return;
       }
       setSuccess(true);
-      router.push('/');
+      router.replace(getSafeRedirect());
       router.refresh();
     } catch {
       setError('اتصال به سرور ممکن نیست');

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, useId } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +33,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export function AuthForm({ mode }: Props) {
   const router = useRouter();
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const uid = useId();
 
   const [fullName, setFullName] = useState('');
@@ -70,6 +72,14 @@ export function AuthForm({ mode }: Props) {
   const passwordMismatch =
     mode === 'register' && confirmPassword.length > 0 && confirmPassword !== password;
 
+  function getSafeRedirect(): string {
+    const requested = searchParams.get('redirect');
+    if (!requested || !requested.startsWith('/') || requested.startsWith('//')) {
+      return '/';
+    }
+    return requested;
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -104,9 +114,7 @@ export function AuthForm({ mode }: Props) {
       }
 
       setSuccess(true);
-      // Short delay so the success state is visible before navigation
-      await new Promise((r) => setTimeout(r, 600));
-      router.push('/');
+      router.replace(getSafeRedirect());
       router.refresh();
     } catch {
       setError('خطای ارتباط با سرور — اتصال اینترنت خود را بررسی کنید');

@@ -46,7 +46,7 @@ const slides: Slide[] = [
     cta: 'مشاهده فروشگاه',
     ctaHref: '/shop',
     secondaryCta: 'ثبت‌نام رایگان',
-    secondaryHref: '/register',
+    secondaryHref: '/auth/register',
     bg: 'from-rose-600 via-rose-700 to-[#5a0a28]',
     lightBg: 'from-[#DC1649] via-[#c01040] to-[#7a0828]',
     accentBg: 'bg-white/15',

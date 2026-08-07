@@ -6,6 +6,7 @@
  */
 
 import { useState, type FormEvent, useId } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,6 +35,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default function RegisterPage() {
   const router   = useRouter();
   const locale   = useLocale();
+  const searchParams = useSearchParams();
   const uid      = useId();
 
   const [fullName,         setFullName]         = useState('');
@@ -62,6 +64,14 @@ export default function RegisterPage() {
   const pwColors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-400', 'bg-emerald-500'];
   const passwordMismatch = confirmPassword.length > 0 && confirmPassword !== password;
 
+  function getSafeRedirect(): string {
+    const requested = searchParams.get('redirect');
+    if (!requested || !requested.startsWith('/') || requested.startsWith('//')) {
+      return '/';
+    }
+    return requested;
+  }
+
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -89,7 +99,7 @@ export default function RegisterPage() {
         return;
       }
       setSuccess(true);
-      router.push('/');
+      router.replace(getSafeRedirect());
       router.refresh();
     } catch {
       setError('اتصال به سرور ممکن نیست');

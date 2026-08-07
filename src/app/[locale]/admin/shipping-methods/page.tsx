@@ -9,7 +9,7 @@ export default async function AdminShippingMethodsPage({
 }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const user = await getCurrentUser();
-  if (!user) redirect(`/${locale}/login?redirect=/admin/shipping-methods`);
+  if (!user) redirect(`/${locale}/auth/login?redirect=/admin/shipping-methods`);
   if (user.role !== 'admin') redirect(`/${locale}/403`);
 
   return (

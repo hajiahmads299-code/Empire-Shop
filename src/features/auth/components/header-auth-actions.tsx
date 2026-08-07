@@ -43,7 +43,7 @@ export function HeaderAuthActions() {
   async function onLogout() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
     setUser(null);
-    router.push('/login');
+    router.push('/auth/login');
     router.refresh();
   }
 

@@ -19,7 +19,7 @@ export function LogoutButton({ label = 'خروج از حساب' }: Props) {
         method: 'POST',
         credentials: 'same-origin',
       });
-      router.replace('/login');
+      router.replace('/auth/login');
       router.refresh();
     } finally {
       setLoading(false);

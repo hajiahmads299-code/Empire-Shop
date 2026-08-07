@@ -38,20 +38,20 @@ interface RequireOpts {
   locale: string;
 }
 
-/** Requires a signed-in user; redirects to /login otherwise. */
+/** Requires a signed-in user; redirects to the canonical auth route otherwise. */
 export async function requireAuth(opts: RequireOpts): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
-    redirect({ href: '/login', locale: opts.locale });
+    redirect({ href: '/auth/login', locale: opts.locale });
   }
   return user!;
 }
 
-/** Requires an admin user. Redirects to /login (guest) or /403 (wrong role). */
+/** Requires an admin user. Redirects to auth (guest) or /403 (wrong role). */
 export async function requireAdmin(opts: RequireOpts): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
-    redirect({ href: '/login', locale: opts.locale });
+    redirect({ href: '/auth/login', locale: opts.locale });
   }
   if (user!.role !== 'admin') {
     redirect({ href: '/403', locale: opts.locale });
@@ -59,11 +59,11 @@ export async function requireAdmin(opts: RequireOpts): Promise<CurrentUser> {
   return user!;
 }
 
-/** Requires a seller user. Redirects to /login (guest) or /403 (wrong role). */
+/** Requires a seller user. Redirects to auth (guest) or /403 (wrong role). */
 export async function requireSeller(opts: RequireOpts): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) {
-    redirect({ href: '/login', locale: opts.locale });
+    redirect({ href: '/auth/login', locale: opts.locale });
   }
   if (user!.role !== 'seller' && user!.role !== 'admin') {
     redirect({ href: '/403', locale: opts.locale });
