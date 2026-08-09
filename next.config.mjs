@@ -2,6 +2,15 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+function envHost(value) {
+  if (!value) return [];
+  try {
+    return [new URL(value).host];
+  } catch {
+    return [value.replace(/^https?:\/\//, '').replace(/\/$/, '')];
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -29,7 +38,12 @@ const nextConfig = {
     ],
     // Stage 5: PPR-safe server actions
     serverActions: {
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: [
+        'localhost:3000',
+        ...envHost(process.env.NEXT_PUBLIC_APP_URL),
+        ...envHost(process.env.NEXT_PUBLIC_SITE_URL),
+        ...envHost(process.env.VERCEL_URL),
+      ],
     },
   },
   // nodemailer and twilio are optional production dependencies that are NOT

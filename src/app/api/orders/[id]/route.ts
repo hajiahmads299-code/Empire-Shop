@@ -16,7 +16,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { mapOrder } from '@/lib/db-mappers';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { logger } from '@/lib/logger';
@@ -31,7 +31,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const rl = rateLimit(clientKey(req, 'orders:get'), { limit: 60 });
+  const rl = await rateLimitAsync(clientKey(req, 'orders:get'), { limit: 60 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const parsed = idSchema.safeParse(id);

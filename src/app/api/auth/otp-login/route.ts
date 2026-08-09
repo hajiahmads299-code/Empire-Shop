@@ -5,7 +5,7 @@ import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { createVerificationToken, consumeVerificationToken } from '@/lib/otp';
 import { sendOtpLogin } from '@/lib/sms';
 import { setSessionCookie } from '@/lib/auth/session';
-import { clientKey, rateLimit, RATE_PRESETS } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync, RATE_PRESETS } from '@/lib/api/rate-limit';
 import { logger } from '@/lib/logger';
 
 // Step 1: send OTP
@@ -25,7 +25,7 @@ const schema = z.discriminatedUnion('step', [sendSchema, verifySchema]);
 
 export async function POST(req: NextRequest) {
   // Stage 3: rate-limit OTP login to prevent brute-force (10 attempts / 60 s per IP).
-  const rl = rateLimit(clientKey(req, 'auth:otp-login'), RATE_PRESETS.auth);
+  const rl = await rateLimitAsync(clientKey(req, 'auth:otp-login'), RATE_PRESETS.auth);
   if (!rl.ok) {
     logger.warn('auth.otp_login.rate_limited', { route: '/api/auth/otp-login' });
     return err('rate_limited', 'تلاش‌های زیاد. کمی بعد دوباره امتحان کنید.', 429);

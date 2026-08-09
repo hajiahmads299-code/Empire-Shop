@@ -4,7 +4,7 @@ import { ok, err } from '@/lib/api/response';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { createVerificationToken } from '@/lib/otp';
 import { sendPasswordResetEmail } from '@/lib/email';
-import { clientKey, rateLimit, RATE_PRESETS } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync, RATE_PRESETS } from '@/lib/api/rate-limit';
 import { logger } from '@/lib/logger';
 
 const schema = z.object({
@@ -14,7 +14,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   // Stage 3: rate-limit to prevent email-bombing via this unauthenticated endpoint.
-  const rl = rateLimit(clientKey(req, 'auth:forgot-password'), RATE_PRESETS.auth);
+  const rl = await rateLimitAsync(clientKey(req, 'auth:forgot-password'), RATE_PRESETS.auth);
   if (!rl.ok) {
     logger.warn('auth.forgot_password.rate_limited', { route: '/api/auth/forgot-password' });
     return err('rate_limited', 'تلاش‌های زیاد. کمی بعد دوباره امتحان کنید.', 429);

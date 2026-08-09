@@ -5,7 +5,7 @@ import { verifyPassword } from '@/lib/auth/password';
 import { setSessionCookie } from '@/lib/auth/session';
 import { loginSchema, parseIdentifier } from '@/lib/auth/schemas';
 import { findMockUser } from '@/lib/auth/mock-users';
-import { clientKey, rateLimit, RATE_PRESETS } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync, RATE_PRESETS } from '@/lib/api/rate-limit';
 import { logger } from '@/lib/logger';
 
 
@@ -15,7 +15,7 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   // Phase 8 — strict rate limit on auth to slow brute-force attempts.
-  const rl = rateLimit(clientKey(req, 'auth:login'), RATE_PRESETS.auth);
+  const rl = await rateLimitAsync(clientKey(req, 'auth:login'), RATE_PRESETS.auth);
   if (!rl.ok) {
     logger.warn('auth.login.rate_limited', { route: '/api/auth/login' });
     return jsonError('rate_limited', 'تلاش‌های زیاد. کمی بعد دوباره امتحان کنید.', {

@@ -15,7 +15,7 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { isDatabaseConfigured } from '@/lib/db';
 import { getSearchService } from '@/server/infrastructure/registry';
 
@@ -32,7 +32,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest) {
   // Higher rate limit for live search (fires on every keystroke)
-  const rl = rateLimit(clientKey(req, 'search:suggest'), { limit: 300 });
+  const rl = await rateLimitAsync(clientKey(req, 'search:suggest'), { limit: 300 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const parsed = suggestSchema.safeParse(

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { pushStore } from '@/lib/pwa/push-store';
 import { getCurrentUser } from '@/lib/auth/current-user';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 
 export const runtime = 'nodejs';
 
@@ -21,7 +21,7 @@ const SubscribeSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'push:subscribe'), { limit: 30, windowMs: 60_000 });
+  const rl = await rateLimitAsync(clientKey(req, 'push:subscribe'), { limit: 30, windowMs: 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: { code: 'rate_limited' } },
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'push:unsubscribe'), { limit: 30, windowMs: 60_000 });
+  const rl = await rateLimitAsync(clientKey(req, 'push:unsubscribe'), { limit: 30, windowMs: 60_000 });
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: { code: 'rate_limited' } },

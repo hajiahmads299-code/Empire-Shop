@@ -65,7 +65,8 @@ export async function requireSeller(opts: RequireOpts): Promise<CurrentUser> {
   if (!user) {
     redirect({ href: '/auth/login', locale: opts.locale });
   }
-  if (user!.role !== 'seller' && user!.role !== 'admin') {
+  if (user!.role === 'admin') return user!;
+  if (user!.role !== 'seller' || user!.sellerStatus !== 'approved') {
     redirect({ href: '/403', locale: opts.locale });
   }
   return user!;

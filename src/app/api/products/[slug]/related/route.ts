@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
 import { isDatabaseConfigured } from '@/lib/db';
 import { productSlugSchema } from '@/lib/validation/product';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { getProductService } from '@/server/infrastructure/registry';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +19,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const rl = rateLimit(clientKey(req, 'products:related'), { limit: 120 });
+  const rl = await rateLimitAsync(clientKey(req, 'products:related'), { limit: 120 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const parsed = productSlugSchema.safeParse(slug);

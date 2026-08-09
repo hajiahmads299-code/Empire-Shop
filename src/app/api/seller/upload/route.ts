@@ -17,6 +17,8 @@ import crypto from 'crypto';
 import { requireSellerApi } from '@/lib/auth/require-seller-api';
 import { logger } from '@/lib/logger';
 
+export const runtime = 'nodejs';
+
 // Allowed MIME types mapped to their safe extensions (derived from MIME, NOT filename).
 const ALLOWED_IMAGE_TYPES: Record<string, string> = {
   'image/jpeg': 'jpg',

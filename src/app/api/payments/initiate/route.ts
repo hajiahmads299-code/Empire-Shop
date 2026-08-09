@@ -16,7 +16,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { createAtomaPaySession } from '@/lib/payments/atoma-pay';
 import { logger } from '@/lib/logger';
 import { getCurrentUser } from '@/lib/auth/current-user';
@@ -42,7 +42,7 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'payments:initiate'), { limit: 30, windowMs: 60_000 });
+  const rl = await rateLimitAsync(clientKey(req, 'payments:initiate'), { limit: 30, windowMs: 60_000 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   if (!isDatabaseConfigured()) {
