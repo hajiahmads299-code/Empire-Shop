@@ -6,7 +6,7 @@
  */
 import type { NextRequest } from 'next/server';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { isDatabaseConfigured } from '@/lib/db';
 import { getSellerRepository } from '@/server/infrastructure/registry';
 
@@ -18,7 +18,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const rl = rateLimit(clientKey(req, 'sellers:public'), { limit: 120 });
+  const rl = await rateLimitAsync(clientKey(req, 'sellers:public'), { limit: 120 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   if (!isDatabaseConfigured()) {

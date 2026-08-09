@@ -1,6 +1,6 @@
 # Empire Shop 🛒
 
-فروشگاه جامع افغانستان — Next.js 15 + TypeScript + Tailwind CSS + shadcn/ui + Prisma + next-intl
+فروشگاه جامع افغانستان — Next.js 16 + TypeScript + Tailwind CSS + shadcn/ui + Prisma + next-intl
 
 ---
 
@@ -17,7 +17,7 @@
 
 ## پیش‌نیازها
 
-- Node.js >= 18.18.0
+- Node.js >= 20.0.0
 - pnpm (یا npm / yarn)
 - PostgreSQL 14+
 
@@ -127,6 +127,7 @@ prisma/
 AUTH_SECRET="..."          # حداقل ۳۲ کاراکتر تصادفی
 DATABASE_URL="..."         # PostgreSQL
 NEXT_PUBLIC_APP_URL="..."  # URL عمومی
+BLOB_READ_WRITE_TOKEN="..." # Vercel Blob / media uploads
 
 # build
 npm run build
@@ -137,11 +138,11 @@ npm run start
 
 ## فناوری‌ها
 
-- **Next.js 15** (App Router)
+- **Next.js 16** (App Router)
 - **TypeScript 5.6**
 - **Tailwind CSS 3** + shadcn/ui
 - **Prisma 5** + PostgreSQL
-- **next-intl 3** (fa / ps / en)
+- **next-intl 4** (fa / ps / en)
 - **Zustand** — مدیریت state کلاینت
 - **Zod** — اعتبارسنجی
 - **Sonner** — اعلان‌های toast

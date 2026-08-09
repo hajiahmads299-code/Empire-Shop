@@ -6,7 +6,7 @@
 import type { NextRequest } from 'next/server';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { getCurrentUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,7 @@ export async function DELETE(
   { params }: { params: Promise<{ productId: string }> },
 ) {
   const { productId } = await params;
-  const rl = rateLimit(clientKey(req, 'wishlist:remove'), { limit: 60 });
+  const rl = await rateLimitAsync(clientKey(req, 'wishlist:remove'), { limit: 60 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const user = await getCurrentUser();

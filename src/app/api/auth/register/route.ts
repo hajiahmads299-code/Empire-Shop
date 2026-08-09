@@ -4,7 +4,7 @@ import { jsonOk, jsonError, jsonPreflight } from '@/lib/api/response';
 import { setSessionCookie } from '@/lib/auth/session';
 import { registerSchema, parseIdentifier } from '@/lib/auth/schemas';
 import { createMockUser, findMockUser } from '@/lib/auth/mock-users';
-import { clientKey, rateLimit, RATE_PRESETS } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync, RATE_PRESETS } from '@/lib/api/rate-limit';
 import { logger } from '@/lib/logger';
 
 export async function OPTIONS() {
@@ -13,7 +13,7 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   // Phase 10.2 — strict rate limit to mitigate mass account creation.
-  const rl = rateLimit(clientKey(req, 'auth:register'), RATE_PRESETS.auth);
+  const rl = await rateLimitAsync(clientKey(req, 'auth:register'), RATE_PRESETS.auth);
   if (!rl.ok) {
     logger.warn('auth.register.rate_limited', { route: '/api/auth/register' });
     return jsonError('rate_limited', 'تلاش‌های زیاد. کمی بعد دوباره امتحان کنید.', {

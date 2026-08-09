@@ -21,10 +21,11 @@ export async function requireSellerApi(): Promise<SellerGuardResult> {
       response: jsonError('unauthorized', 'Authentication required', { status: 401 }),
     };
   }
-  if (user.role !== 'seller' && user.role !== 'admin') {
+  if (user.role === 'admin') return { ok: true, user };
+  if (user.role !== 'seller' || user.sellerStatus !== 'approved') {
     return {
       ok: false,
-      response: jsonError('forbidden', 'Seller access required', { status: 403 }),
+      response: jsonError('forbidden', 'Approved seller access required', { status: 403 }),
     };
   }
   return { ok: true, user };

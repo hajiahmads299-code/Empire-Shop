@@ -31,7 +31,7 @@
 import type { NextRequest } from 'next/server';
 import { productListQuerySchema } from '@/lib/validation/product';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { isDatabaseConfigured } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { getProductService } from '@/server/infrastructure/registry';
@@ -43,7 +43,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'products:list'), { limit: 120 });
+  const rl = await rateLimitAsync(clientKey(req, 'products:list'), { limit: 120 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   // Validate query params via Zod schema

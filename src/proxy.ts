@@ -2,7 +2,7 @@ import createIntlMiddleware from 'next-intl/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
 import { securityHeaders } from '@/lib/security/headers';
-import { rateLimit, clientKey } from '@/lib/api/rate-limit';
+import { rateLimitAsync, clientKey } from '@/lib/api/rate-limit';
 
 const intlMiddleware = createIntlMiddleware(routing);
 const PROTECTED_SEGMENTS = ['/profile', '/admin', '/seller'] as const;
@@ -54,7 +54,7 @@ function sameOriginRequest(req: NextRequest): boolean {
   }
 }
 
-export function proxy(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const nonce = makeNonce();
 
@@ -72,7 +72,7 @@ export function proxy(req: NextRequest) {
         nonce,
       );
     }
-    const rl = rateLimit(clientKey(req, 'api:global'), {
+    const rl = await rateLimitAsync(clientKey(req, 'api:global'), {
       limit: API_RATE_LIMIT,
       windowMs: API_RATE_WINDOW_MS,
     });

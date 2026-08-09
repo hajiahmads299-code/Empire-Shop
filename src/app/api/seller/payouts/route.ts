@@ -10,7 +10,7 @@ import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
 import { requireSellerApi } from '@/lib/auth/require-seller-api';
 import { requestPayout, PayoutError } from '@/lib/finance/wallet';
 import { listSellerPayouts } from '@/features/seller/lib/wallet-queries';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +34,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   // Phase 10.2 — strict rate limit on payout creation to make abuse loud.
-  const rl = rateLimit(clientKey(req, 'seller:payouts:create'), {
+  const rl = await rateLimitAsync(clientKey(req, 'seller:payouts:create'), {
     limit: 5,
     windowMs: 60_000,
   });

@@ -23,6 +23,7 @@ import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
 import { requireSellerApi } from '@/lib/auth/require-seller-api';
 import { logger } from '@/lib/logger';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_BYTES = 3 * 1024 * 1024;

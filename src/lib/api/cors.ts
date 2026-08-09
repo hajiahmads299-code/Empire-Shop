@@ -2,19 +2,21 @@
  * CORS response headers — Stage 3 hardened.
  *
  * Restricts Access-Control-Allow-Origin to the configured app URL
- * (NEXT_PUBLIC_APP_URL) instead of blindly reflecting any incoming Origin.
+ * (NEXT_PUBLIC_APP_URL / NEXT_PUBLIC_SITE_URL) instead of blindly reflecting any incoming Origin in production.
  * Blindly reflecting any origin while setting Allow-Credentials: true allows
  * any website to make credentialed cross-origin requests and read the response,
  * defeating cookie-based session security.
  *
  * Behaviour:
- *  - If the request Origin matches the configured app URL → reflect it.
+ *  - If the request Origin matches a configured app/site URL → reflect it.
  *  - If no Origin header is present (same-origin browser requests, curl) → no ACAO.
  *  - If Origin does not match → no ACAO header (browser will block the read).
  */
 
-const ALLOWED_ORIGIN =
-  (process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const ALLOWED_ORIGINS = [process.env.NEXT_PUBLIC_APP_URL, process.env.NEXT_PUBLIC_SITE_URL]
+  .filter((value): value is string => Boolean(value))
+  .map((value) => value.replace(/\/$/, ''));
 
 export function corsHeaders(req?: Request): Headers {
   const headers = new Headers();
@@ -24,10 +26,10 @@ export function corsHeaders(req?: Request): Headers {
 
   const origin = req?.headers.get('origin');
   if (origin) {
-    // In development (or when ALLOWED_ORIGIN is not configured), reflect any
-    // origin so the dev server / Next.js dev tools keep working.
-    const isDev = process.env.NODE_ENV !== 'production';
-    const isAllowed = isDev || !ALLOWED_ORIGIN || origin === ALLOWED_ORIGIN;
+    // In production, fail closed unless a public app/site URL is configured
+    // and the incoming Origin matches it exactly. Development keeps permissive
+    // reflection so local tools and alternate ports continue to work.
+    const isAllowed = IS_PRODUCTION ? ALLOWED_ORIGINS.includes(origin) : true;
     if (isAllowed) {
       headers.set('Access-Control-Allow-Origin', origin);
     }

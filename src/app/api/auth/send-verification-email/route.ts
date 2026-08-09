@@ -5,7 +5,7 @@ import { requireUserApi } from '@/lib/auth/guards';
 import { prisma } from '@/lib/db';
 import { createVerificationToken } from '@/lib/otp';
 import { sendEmailVerificationEmail } from '@/lib/email';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { logger } from '@/lib/logger';
 
 const schema = z.object({ locale: z.string().default('fa') });
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   if (response) return response;
 
   // Stage 3: per-user rate limit to prevent email-bombing via this endpoint.
-  const rl = rateLimit(clientKey(req, `auth:send-verify-email:${user.id}`), EMAIL_VERIFY_LIMIT);
+  const rl = await rateLimitAsync(clientKey(req, `auth:send-verify-email:${user.id}`), EMAIL_VERIFY_LIMIT);
   if (!rl.ok) {
     logger.warn('auth.send_verification_email.rate_limited', {
       userId: user.id,

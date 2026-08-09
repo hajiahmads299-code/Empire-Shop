@@ -6,7 +6,7 @@
  */
 import type { NextRequest } from 'next/server';
 import { jsonOk, jsonPreflight, jsonError } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { isDatabaseConfigured } from '@/lib/db';
 import { getCategoryRepository } from '@/server/infrastructure/registry';
 
@@ -17,7 +17,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'categories:list'), { limit: 120 });
+  const rl = await rateLimitAsync(clientKey(req, 'categories:list'), { limit: 120 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   if (!isDatabaseConfigured()) {

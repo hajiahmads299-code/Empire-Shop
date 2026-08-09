@@ -12,7 +12,7 @@ import type { NextRequest } from 'next/server';
 import { isDatabaseConfigured, prisma } from '@/lib/db';
 import { productSlugSchema, reviewCreateSchema } from '@/lib/validation/product';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { getCurrentUser } from '@/lib/auth';
 import { mapReview } from '@/lib/db-mappers-phase6';
 import { getReviewRepository } from '@/server/infrastructure/registry';
@@ -25,7 +25,7 @@ export async function OPTIONS() {
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const rl = rateLimit(clientKey(req, 'reviews:list'), { limit: 120 });
+  const rl = await rateLimitAsync(clientKey(req, 'reviews:list'), { limit: 120 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const parsed = productSlugSchema.safeParse(slug);
@@ -63,7 +63,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const rl = rateLimit(clientKey(req, 'reviews:create'), { limit: 20 });
+  const rl = await rateLimitAsync(clientKey(req, 'reviews:create'), { limit: 20 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const parsedSlug = productSlugSchema.safeParse(slug);

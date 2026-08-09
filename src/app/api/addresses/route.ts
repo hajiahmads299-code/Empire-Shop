@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
 import { prisma, isDatabaseConfigured } from '@/lib/db';
 import { addressInputSchema } from '@/lib/validation/order';
 import { jsonError, jsonOk, jsonPreflight } from '@/lib/api/response';
-import { clientKey, rateLimit } from '@/lib/api/rate-limit';
+import { clientKey, rateLimitAsync } from '@/lib/api/rate-limit';
 import { getCurrentUser } from '@/lib/auth/current-user';
 import { mapAddress } from '@/lib/db-mappers';
 
@@ -19,7 +19,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'addr:list'), { limit: 60 });
+  const rl = await rateLimitAsync(clientKey(req, 'addr:list'), { limit: 60 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const user = await getCurrentUser();
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const rl = rateLimit(clientKey(req, 'addr:create'), { limit: 20, windowMs: 60_000 });
+  const rl = await rateLimitAsync(clientKey(req, 'addr:create'), { limit: 20, windowMs: 60_000 });
   if (!rl.ok) return jsonError('rate_limited', 'Too many requests', { status: 429 });
 
   const user = await getCurrentUser();
