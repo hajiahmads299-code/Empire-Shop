@@ -17,7 +17,7 @@
 
 ## پیش‌نیازها
 
-- Node.js >= 18.18.0
+- Node.js 24 LTS (see `.nvmrc`)
 - pnpm (یا npm / yarn)
 - PostgreSQL 14+
 

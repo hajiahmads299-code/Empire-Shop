@@ -8,7 +8,8 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   // Emit a self-contained production server for container/standalone deploys.
-  output: 'standalone',
+  // Vercel builds its own serverless output and must NOT use `standalone`.
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   outputFileTracingRoot: process.cwd(),
   productionBrowserSourceMaps: false,
   experimental: {
@@ -29,7 +30,13 @@ const nextConfig = {
     ],
     // Stage 5: PPR-safe server actions
     serverActions: {
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: [
+        'localhost:3000',
+        ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? [process.env.VERCEL_PROJECT_PRODUCTION_URL]
+          : []),
+        ...(process.env.VERCEL_URL ? [process.env.VERCEL_URL] : []),
+      ],
     },
   },
   // nodemailer and twilio are optional production dependencies that are NOT

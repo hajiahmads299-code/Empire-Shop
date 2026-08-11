@@ -17,7 +17,11 @@ import type { BrandMeta } from '@/types';
 
 function resolveSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  const runtimeDomain = process.env.REPLIT_DOMAINS?.split(',')[0]?.trim();
+  // Vercel injects VERCEL_PROJECT_PRODUCTION_URL (stable production domain) and
+  // VERCEL_URL (per-deployment domain). Prefer the production domain.
+  const runtimeDomain = (
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL
+  )?.trim();
   const raw = configured || (runtimeDomain ? `https://${runtimeDomain}` : '');
   const trimmed = raw.replace(/\/$/, '');
 
@@ -34,7 +38,7 @@ function resolveSiteUrl(): string {
     }
   }
 
-  // Replit supplies REPLIT_DOMAINS in published apps. Local development falls
+  // Vercel supplies the deployment domain at runtime. Local development falls
   // back to localhost so the app still boots without optional site config.
   return trimmed || 'http://localhost:3000';
 }
