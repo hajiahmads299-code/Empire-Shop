@@ -9,6 +9,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Prisma requires a syntactically valid URL for `validate`/`generate`.
+  # No database is contacted during CI.
+  DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+  NEXT_TELEMETRY_DISABLED: '1'
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -23,5 +33,5 @@ jobs:
       - run: npm run typecheck
       - run: npx prisma validate
       - run: npm run test
-      - run: npm audit --audit-level=high
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run build

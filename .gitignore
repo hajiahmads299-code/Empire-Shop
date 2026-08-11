@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (never commit real secrets; the example template is tracked)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -40,9 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Replit-specific (do not commit)
+# Local agent scratch / generated reports (do not commit)
 .agents/
-replit.md
 *.REPORT.md
 FINAL_FIX_REPORT.md
 STAGE*.md
