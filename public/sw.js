@@ -6,7 +6,7 @@
  *  - APIs (/api/*): network-only (never cache to avoid stale auth/data)
  *  - Push: shows notification and focuses/opens URL on click
  */
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.1.0';
 const PRECACHE = `empire-precache-${VERSION}`;
 const RUNTIME_HTML = `empire-html-${VERSION}`;
 const RUNTIME_ASSETS = `empire-assets-${VERSION}`;
@@ -21,7 +21,21 @@ const PRECACHE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(PRECACHE).then((c) => c.addAll(PRECACHE_URLS)).then(() => self.skipWaiting()),
+    (async () => {
+      const cache = await caches.open(PRECACHE);
+      // Per-URL so one missing icon can't abort the whole install.
+      await Promise.all(
+        PRECACHE_URLS.map(async (url) => {
+          try {
+            const res = await fetch(url, { cache: 'no-cache' });
+            if (isCacheable(res)) await cache.put(url, res.clone());
+          } catch {
+            /* ignore — precache is best-effort */
+          }
+        }),
+      );
+      await self.skipWaiting();
+    })(),
   );
 });
 
@@ -38,6 +52,22 @@ self.addEventListener('activate', (event) => {
     })(),
   );
 });
+
+/**
+ * A response is only safe to cache when it is a real, complete, successful
+ * same-origin response. Never cache errors, redirects, partial (206) or
+ * opaque responses.
+ */
+function isCacheable(res) {
+  return Boolean(
+    res &&
+      res.ok &&
+      res.status === 200 &&
+      res.type !== 'opaque' &&
+      res.type !== 'opaqueredirect' &&
+      !res.redirected,
+  );
+}
 
 function isHTMLRequest(req) {
   return req.mode === 'navigate' || (req.method === 'GET' && req.headers.get('accept')?.includes('text/html'));
@@ -75,8 +105,13 @@ self.addEventListener('fetch', (event) => {
       (async () => {
         try {
           const fresh = await fetch(req);
-          const cache = await caches.open(RUNTIME_HTML);
-          cache.put(req, fresh.clone()).catch(() => {});
+          // Only cache good, complete, same-origin responses. Caching a 404 /
+          // 500 / redirect / partial response would pin a broken page for
+          // every subsequent visit.
+          if (isCacheable(fresh)) {
+            const cache = await caches.open(RUNTIME_HTML);
+            cache.put(req, fresh.clone()).catch(() => {});
+          }
           return fresh;
         } catch {
           const cache = await caches.open(RUNTIME_HTML);
@@ -97,7 +132,7 @@ self.addEventListener('fetch', (event) => {
         const cached = await cache.match(req);
         if (cached) return cached;
         const fresh = await fetch(req);
-        if (fresh.ok) cache.put(req, fresh.clone()).catch(() => {});
+        if (isCacheable(fresh)) cache.put(req, fresh.clone()).catch(() => {});
         return fresh;
       }),
     );
@@ -111,7 +146,7 @@ self.addEventListener('fetch', (event) => {
         const cached = await cache.match(req);
         const network = fetch(req)
           .then((res) => {
-            if (res.ok) cache.put(req, res.clone()).catch(() => {});
+            if (isCacheable(res)) cache.put(req, res.clone()).catch(() => {});
             return res;
           })
           .catch(() => cached);
