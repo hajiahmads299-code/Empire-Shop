@@ -34,4 +34,8 @@ jobs:
       - run: npx prisma validate
       - run: npm run test
       - run: npm audit --omit=dev --audit-level=high
+      # CI has no reachable database: `npm run build` would otherwise call
+      # `prisma migrate deploy` against the placeholder DATABASE_URL and fail.
       - run: npm run build
+        env:
+          SKIP_DB_MIGRATE: '1'
