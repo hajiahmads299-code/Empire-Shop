@@ -1,25 +1,28 @@
 /**
  * Security headers — Phase 10.2 (hardened in Phase 10.4).
  *
- * In production we build a strict, nonce-based CSP: `script-src` no
- * longer carries `'unsafe-inline'` — the caller (middleware) mints a
- * per-request nonce, and Next.js inline bootstrap scripts are tagged
- * with it via `next.config.mjs` / runtime propagation. `'strict-dynamic'`
- * lets nonce-approved scripts load their own dependencies without a
- * host allowlist.
+ * In production we build a strict CSP that is compatible with statically
+ * prerendered Next.js pages: `script-src` allows `'self'` plus inline
+ * scripts (the framework's own bootstrap/flight payload). A per-request
+ * nonce is intentionally NOT used — prerendered HTML is produced at build
+ * time and cannot be tagged per request, and a nonce makes browsers ignore
+ * `'self'`, which blocked every script and produced blank pages.
  *
  * In development we keep `'unsafe-inline'` + `'unsafe-eval'` so the
  * Next.js dev overlay and Fast Refresh keep working.
  */
 
 export interface SecurityHeaderOptions {
-  /** Per-request nonce (base64). When provided in prod, script-src uses it. */
+  /**
+   * Per-request nonce (base64). Accepted for backwards compatibility with
+   * callers that still mint one; it is no longer added to `script-src`
+   * because prerendered pages cannot carry a per-request nonce.
+   */
   nonce?: string;
 }
 
-export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string, string> {
+export function securityHeaders(_opts: SecurityHeaderOptions = {}): Record<string, string> {
   const isProd = process.env.NODE_ENV === 'production';
-  const { nonce } = opts;
 
   const extraConnect = (process.env.CSP_CONNECT_EXTRA ?? '')
     .split(/[,\s]+/)
@@ -32,13 +35,18 @@ export function securityHeaders(opts: SecurityHeaderOptions = {}): Record<string
   ].join(' ');
 
   // script-src:
-  //   - prod + nonce  → 'self' 'nonce-...' 'strict-dynamic'   (no unsafe-inline)
-  //   - prod, no nonce (edge cases / static probes) → 'self' (deny inline)
-  //   - dev           → 'self' 'unsafe-inline' 'unsafe-eval'  (HMR + overlay)
+  //   - prod → 'self' 'unsafe-inline'                         (see note below)
+  //   - dev  → 'self' 'unsafe-inline' 'unsafe-eval'           (HMR + overlay)
+  //
+  // A per-request nonce cannot be used here: most storefront routes (including
+  // the `/[locale]` home page) are statically prerendered at build time, so
+  // their inline Next.js bootstrap scripts carry no nonce. Because CSP level 3
+  // ignores host sources such as 'self' as soon as a nonce/'strict-dynamic' is
+  // present, the previous nonce policy blocked *every* Next.js script and the
+  // home page rendered blank. `'self' 'unsafe-inline'` keeps the rest of the
+  // policy strict while letting the framework's own scripts run.
   const scriptSrc = isProd
-    ? nonce
-      ? `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'report-sample'`
-      : "script-src 'self' 'report-sample'"
+    ? "script-src 'self' 'unsafe-inline' 'report-sample'"
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
 
   const cspDirectives = [
