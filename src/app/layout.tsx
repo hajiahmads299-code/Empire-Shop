@@ -14,5 +14,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 export const metadata = {
   title: 'Empire Shop',
   description: 'Empire Shop foundation',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  // Make metadataBase robust against undefined, null, empty or whitespace values.
+  // Prefer NEXT_PUBLIC_SITE_URL when set and non-empty; otherwise use VERCEL_URL (build-time on Vercel)
+  // to produce a production-compatible origin, and finally fall back to localhost for local dev.
+  metadataBase: (() => {
+    const raw = process.env.NEXT_PUBLIC_SITE_URL;
+    const trimmed = typeof raw === 'string' ? raw.trim() : '';
+    const base = trimmed || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+    return new URL(base);
+  })(),
 };
