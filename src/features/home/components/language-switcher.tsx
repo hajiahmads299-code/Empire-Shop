@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
-import { useSearchParams } from 'next/navigation';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
@@ -30,12 +29,16 @@ export function LanguageSwitcher({ variant = 'icon', className }: LanguageSwitch
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const t = useTranslations('mobileMenu');
   const current = LOCALES.find((l) => l.code === locale) ?? LOCALES[0];
 
   function change(code: string) {
-    const query = searchParams.toString();
+    // Read the query string lazily from the browser instead of
+    // `useSearchParams()`: calling that hook during render forces the whole
+    // page tree to bail out of static/server rendering
+    // (BAILOUT_TO_CLIENT_SIDE_RENDERING), which left the prerendered HTML
+    // empty and the storefront stuck on the loading screen.
+    const query = typeof window === 'undefined' ? '' : window.location.search.replace(/^\?/, '');
     const href = query ? `${pathname}?${query}` : pathname;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- next-intl router types do not expose href overload
     router.replace(href as any, { locale: code as any });
